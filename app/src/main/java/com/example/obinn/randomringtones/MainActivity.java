@@ -1,6 +1,10 @@
 package com.example.obinn.randomringtones;
 
+import android.content.Intent;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -8,8 +12,14 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.TextView;
+import model.Ringtone;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+
+    MediaPlayer mediaPlayer;
+    TextView testView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,14 +28,43 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        Button fileExplorerButton = (Button) findViewById(R.id.button2);
+        fileExplorerButton.setOnClickListener(this);
+
+        Button playRingtoneButton = (Button) findViewById(R.id.button);
+        playRingtoneButton.setOnClickListener(this);
+
+        testView = (TextView) findViewById(R.id.textView);
+        testView.setText("Welcome.");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+        }
+    }
+
+    public void playRingtone(View view) {
+        mediaPlayer.start();
+    }
+
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.button2:
+                Intent intent = new Intent();
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("*/*");
+                startActivityForResult(Intent.createChooser(intent, "DEMO"), 1001);
+                break;
+            case R.id.button:
+                mediaPlayer = MediaPlayer.create(this, R.raw.skysong);
+                playRingtone(v);
+                break;
+        }
+
     }
 
     @Override
@@ -49,4 +88,16 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    protected void onActivityResult(int requestCode,int resultCode,Intent data){
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1001) {
+            Uri currFileURI = data.getData();
+            String path = currFileURI.getPath();
+        }
+
+    }
+
+
 }
